@@ -30,28 +30,30 @@
         .screen.active { display: flex; }
         
         .mod-row { display: flex; gap: 5px; margin-bottom: 8px; }
-        .mod-btn { flex: 1; padding: 14px; border: none; border-radius: 8px; background: #333; color: white; font-weight: bold; font-size: 0.9rem; transition: background 0.1s; }
+        .mod-btn { flex: 1; padding: 14px; border: none; border-radius: 8px; background: #333; color: white; font-weight: bold; font-size: 0.9rem; }
         .mod-btn.selected { background: var(--warn); color: black; }
         
         .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
-        .grid-btn { background: #1c1c1c; border: 1px solid #333; border-radius: 6px; color: white; padding: 13px 0; font-weight: bold; font-size: 1.1rem; transition: background 0.1s; }
+        .grid-btn { background: #1c1c1c; border: 1px solid #333; border-radius: 6px; color: white; padding: 13px 0; font-weight: bold; font-size: 1.1rem; }
         
         .bottom-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
-        .action-btn { background: #333; color: white; border-radius: 8px; border: none; padding: 15px 5px; font-weight: bold; font-size: 0.9rem; transition: background 0.1s; }
+        .action-btn { background: #333; color: white; border-radius: 8px; border: none; padding: 15px 5px; font-weight: bold; font-size: 0.9rem; }
         .accent-btn { background: var(--accent); color: #000; }
         .undo-btn { background: #444; color: #fff; }
         .miss-btn { background: #421010; color: #fff; }
         
         #fin-entry-ui { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 450px; }
-        .num-btn { background: #222; border: none; border-radius: 10px; color: white; font-size: 1.8rem; font-weight: bold; padding: 18px 0; transition: background 0.1s; }
+        .num-btn { background: #222; border: none; border-radius: 10px; color: white; font-size: 1.8rem; font-weight: bold; padding: 18px 0; }
 
-        /* --- NEW: Visual Tap Highlight --- */
-        .num-btn:active, .grid-btn:active, .mod-btn:active, .action-btn:active {
-            background: #444 !important; /* Lighter grey flash */
-            transform: scale(0.98); /* Slight shrink effect */
+        /* --- IPHONE OPTIMIZED INSTANT HIGHLIGHT --- */
+        .num-btn:active, .grid-btn:active, .mod-btn:active, .action-btn:active, .nav-btn:active {
+            background: #ffffff !important; 
+            color: #000000 !important;
+            transform: scale(0.96);
         }
         .accent-btn:active {
-            background: #aaffd4 !important; /* Brighter accent flash */
+            background: #aaffd4 !important;
+            transform: scale(0.96);
         }
 
         .footer {
@@ -63,13 +65,11 @@
         .donate-btn {
             background: transparent; border: 1px solid #444; color: var(--accent);
             padding: 8px 16px; border-radius: 20px; font-size: 0.65rem; font-weight: bold;
-            letter-spacing: 1.5px; cursor: pointer; transition: all 0.3s ease; margin-bottom: 15px;
+            letter-spacing: 1.5px; cursor: pointer; margin-bottom: 15px;
         }
     </style>
 </head>
-<body>
-
-    <div id="nav-bar">
+<body ontouchstart=""> <div id="nav-bar">
         <button id="tab-finisher" class="nav-btn active" onclick="switchTab('finisher')">THE FINISHER</button>
         <button id="tab-quick" class="nav-btn" onclick="switchTab('quick')">QUICK ADD</button>
     </div>
