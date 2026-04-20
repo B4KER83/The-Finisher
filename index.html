@@ -6,30 +6,61 @@
     <title>The Finisher Pro</title>
     <style>
         :root { --bg: #0b0b0b; --card: #1a1a1a; --accent: #00e676; --warn: #ffa726; --text: #ffffff; }
-        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; padding: 5px; display: flex; flex-direction: column; align-items: center; height: 100vh; box-sizing: border-box; overflow: hidden; touch-action: manipulation; }
+        
+        body { 
+            background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; 
+            margin: 0; padding: 5px; display: flex; flex-direction: column; align-items: center; 
+            height: 100vh; box-sizing: border-box; overflow: hidden; touch-action: manipulation;
+            -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+        }
+
         #nav-bar { display: flex; width: 100%; max-width: 450px; gap: 5px; margin-bottom: 10px; }
         .nav-btn { flex: 1; padding: 12px; background: #222; border: 1px solid #333; color: #888; border-radius: 8px; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
         .nav-btn.active { background: var(--card); color: var(--accent); border-color: var(--accent); }
+        
         #display-section { width: 100%; max-width: 450px; background: var(--card); border-radius: 15px; padding: 12px; text-align: center; border: 1px solid #333; margin-bottom: 10px; box-sizing: border-box; }
         #total-score { font-size: 3.8rem; font-weight: 900; margin: 0; line-height: 1; }
         #sub-text { font-size: 1.1rem; font-weight: 700; color: var(--accent); margin-top: 5px; min-height: 28px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
         .dart-slots { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
         .dart-box { width: 65px; height: 35px; border: 1px solid #333; border-radius: 6px; background: #000; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #666; font-size: 0.9rem; }
         .dart-box.filled { color: #fff; border-color: #555; background: #222; }
+        
         .screen { display: none; width: 100%; max-width: 450px; flex-direction: column; }
         .screen.active { display: flex; }
+        
         .mod-row { display: flex; gap: 5px; margin-bottom: 8px; }
         .mod-btn { flex: 1; padding: 14px; border: none; border-radius: 8px; background: #333; color: white; font-weight: bold; font-size: 0.9rem; }
         .mod-btn.selected { background: var(--warn); color: black; }
+        
         .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
         .grid-btn { background: #1c1c1c; border: 1px solid #333; border-radius: 6px; color: white; padding: 13px 0; font-weight: bold; font-size: 1.1rem; }
+        
         .bottom-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
         .action-btn { background: #333; color: white; border-radius: 8px; border: none; padding: 15px 5px; font-weight: bold; font-size: 0.9rem; }
         .accent-btn { background: var(--accent); color: #000; }
         .undo-btn { background: #444; color: #fff; }
         .miss-btn { background: #421010; color: #fff; }
+        
         #fin-entry-ui { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 450px; }
         .num-btn { background: #222; border: none; border-radius: 10px; color: white; font-size: 1.8rem; font-weight: bold; padding: 18px 0; }
+
+        /* Branding & Donation Footer */
+        .footer {
+            margin-top: auto; padding: 15px 0; width: 100%; text-align: center;
+            font-size: 0.7rem; color: #444; letter-spacing: 1px; text-transform: uppercase;
+            border-top: 1px solid #222;
+        }
+        .copyright-symbol { color: var(--accent); font-weight: bold; }
+        .donate-btn {
+            background: transparent; border: 1px solid #444; color: var(--accent);
+            padding: 8px 16px; border-radius: 20px; font-size: 0.65rem; font-weight: bold;
+            letter-spacing: 1.5px; cursor: pointer; transition: all 0.3s ease; margin-bottom: 15px;
+        }
+        .donate-btn:hover {
+            background: var(--accent); color: #000; border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -94,7 +125,24 @@
         </div>
     </div>
 
+    <div class="footer">
+        <a href="https://paypal.me/Dartsapp" target="_blank" style="text-decoration: none;">
+            <button class="donate-btn">SUPPORT PROJECT</button>
+        </a>
+        <br>
+        <span class="copyright-symbol">&copy;</span> 
+        <span id="year"></span> 
+        THE FINISHER PRO | SERIES-X | ALL RIGHTS RESERVED
+        <div style="font-size: 0.6rem; margin-top: 4px; opacity: 0.5;">
+            LICENSED TO END-USER: DART-PROFESSIONAL-STATION-2026
+        </div>
+    </div>
+
 <script>
+    // Branding Logic
+    document.getElementById('year').innerText = new Date().getFullYear();
+    document.addEventListener('contextmenu', e => e.preventDefault());
+
     const checkoutTable = {
         170:"T20 T20 BULL", 167:"T20 T19 BULL", 164:"T20 T18 BULL", 161:"T20 T17 BULL", 160:"T20 T20 D20",
         158:"T20 T20 D19", 157:"T20 T19 D20", 156:"T20 T20 D18", 155:"T20 T19 D19", 154:"T20 T18 D20",
@@ -125,18 +173,11 @@
     function setMod(m){ modifier=m; document.querySelectorAll('.mod-btn').forEach(b=>b.classList.toggle('selected', b.classList.contains(m.toLowerCase()+'-mod'))); }
     
     function getPts(v, f){ 
-        if(f==='M')return 0; 
-        if(v===25 || v===50) return v; 
-        if(f==='D')return v*2; 
-        if(f==='T')return v*3; 
-        return v; 
+        if(f==='M')return 0; if(v===25 || v===50) return v; if(f==='D')return v*2; if(f==='T')return v*3; return v; 
     }
     
     function getLabel(v, f){ 
-        if(f==='M')return "MISS"; 
-        if(v===25) return "25";
-        if(v===50) return "BULL"; 
-        return (f==='S'?"":f)+v; 
+        if(f==='M')return "MISS"; if(v===25) return "25"; if(v===50) return "BULL"; return (f==='S'?"":f)+v; 
     }
 
     function updateSlots(l){ for(let i=0;i<3;i++){ const s=document.getElementById(`slot-${i}`); s.innerText=l[i]||""; s.className=l[i]?'dart-box filled':'dart-box'; } }
@@ -152,9 +193,7 @@
         if(finScore-p<0||(finScore-p===1 && p !== finScore)){ 
             while(finDartLabels.length<3){ finDartLabels.push("BUST"); finDartsValues.push(0); } 
         } else { 
-            finScore-=p; 
-            finDartsValues.push(p); 
-            finDartLabels.push(getLabel(v, (v===25||v===50)?'S':f)); 
+            finScore-=p; finDartsValues.push(p); finDartLabels.push(getLabel(v, (v===25||v===50)?'S':f)); 
         }
         setMod('S'); updateFinDisplay();
     }
@@ -162,13 +201,8 @@
     function finUndo(){ 
         if(finDartLabels.length===0)return; 
         if(finDartLabels[finDartLabels.length-1]==="BUST"){ 
-            while(finDartLabels.length > 0 && finDartLabels[finDartLabels.length-1]==="BUST"){ 
-                finDartLabels.pop(); finDartsValues.pop(); 
-            } 
-        } else { 
-            finScore+=finDartsValues.pop(); 
-            finDartLabels.pop(); 
-        } 
+            while(finDartLabels.length > 0 && finDartLabels[finDartLabels.length-1]==="BUST"){ finDartLabels.pop(); finDartsValues.pop(); } 
+        } else { finScore+=finDartsValues.pop(); finDartLabels.pop(); } 
         updateFinDisplay(); 
     }
     
@@ -176,22 +210,10 @@
         if (score === 0) return "GAME SHOT";
         if (score === 50) return "BULL";
         if (score < 2) return "NO FINISH";
-
-        // 1. Check PDC Table for current score and remaining darts
         if (checkoutTable[score]) {
             let steps = checkoutTable[score].split(" ");
             if (steps.length <= dartsHand) return checkoutTable[score];
         }
-
-        // 2. PDC Logic setups for 2 darts
-        if (dartsHand === 2) {
-            if (score === 61) return "T15 D8";
-            if (score === 65) return "T15 D10";
-            if (score === 67) return "T17 D8";
-            if (score === 70) return "T10 D20";
-        }
-
-        // 3. Recursive Setup Logic
         let seq = []; let tmp = score; let dLeft = dartsHand;
         while (dLeft > 0 && tmp > 0) {
             if (checkoutTable[tmp]) {
@@ -219,13 +241,7 @@
     }
 
     function resetFinisher(){ finInput=""; finScore=0; finDartLabels=[]; finDartsValues=[]; document.getElementById('fin-entry-ui').style.display='grid'; document.getElementById('fin-adj-ui').style.display='none'; updateFinDisplay(); }
-    
-    function quickHit(v, f){ 
-        if(qDartLabels.length>=3) return; 
-        let p=getPts(v, (v===25||v===50)?'S':f); 
-        qTotal+=p; qDartsValues.push(p); qDartLabels.push(getLabel(v, (v===25||v===50)?'S':f)); 
-        setMod('S'); updateQuickDisplay(); 
-    }
+    function quickHit(v, f){ if(qDartLabels.length>=3) return; let p=getPts(v, (v===25||v===50)?'S':f); qTotal+=p; qDartsValues.push(p); qDartLabels.push(getLabel(v, (v===25||v===50)?'S':f)); setMod('S'); updateQuickDisplay(); }
     function quickUndo(){ if(qDartLabels.length>0){ qTotal-=qDartsValues.pop(); qDartLabels.pop(); updateQuickDisplay(); } }
     function updateQuickDisplay(){ document.getElementById('total-score').innerText = qTotal; document.getElementById('sub-text').innerText = "QUICK ADD"; updateSlots(qDartLabels); }
     function resetQuick(){ qTotal=0; qDartLabels=[]; qDartsValues=[]; updateQuickDisplay(); }
