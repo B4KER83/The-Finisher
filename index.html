@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The Finisher Pro</title>
+    <style>
+        :root { --bg: #0b0b0b; --card: #1a1a1a; --accent: #00e676; --warn: #ffa726; --text: #ffffff; }
+        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; padding: 5px; display: flex; flex-direction: column; align-items: center; height: 100vh; box-sizing: border-box; overflow: hidden; touch-action: manipulation; }
+        #nav-bar { display: flex; width: 100%; max-width: 450px; gap: 5px; margin-bottom: 10px; }
+        .nav-btn { flex: 1; padding: 12px; background: #222; border: 1px solid #333; color: #888; border-radius: 8px; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
+        .nav-btn.active { background: var(--card); color: var(--accent); border-color: var(--accent); }
+        #display-section { width: 100%; max-width: 450px; background: var(--card); border-radius: 15px; padding: 12px; text-align: center; border: 1px solid #333; margin-bottom: 10px; box-sizing: border-box; }
+        #total-score { font-size: 3.8rem; font-weight: 900; margin: 0; line-height: 1; }
+        #sub-text { font-size: 1.1rem; font-weight: 700; color: var(--accent); margin-top: 5px; min-height: 28px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .dart-slots { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
+        .dart-box { width: 65px; height: 35px; border: 1px solid #333; border-radius: 6px; background: #000; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #666; font-size: 0.9rem; }
+        .dart-box.filled { color: #fff; border-color: #555; background: #222; }
+        .screen { display: none; width: 100%; max-width: 450px; flex-direction: column; }
+        .screen.active { display: flex; }
+        .mod-row { display: flex; gap: 5px; margin-bottom: 8px; }
+        .mod-btn { flex: 1; padding: 14px; border: none; border-radius: 8px; background: #333; color: white; font-weight: bold; font-size: 0.9rem; }
+        .mod-btn.selected { background: var(--warn); color: black; }
+        .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+        .grid-btn { background: #1c1c1c; border: 1px solid #333; border-radius: 6px; color: white; padding: 13px 0; font-weight: bold; font-size: 1.1rem; }
+        .bottom-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+        .action-btn { background: #333; color: white; border-radius: 8px; border: none; padding: 15px 5px; font-weight: bold; font-size: 0.9rem; }
+        .accent-btn { background: var(--accent); color: #000; }
+        .undo-btn { background: #444; color: #fff; }
+        .miss-btn { background: #421010; color: #fff; }
+        #fin-entry-ui { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 450px; }
+        .num-btn { background: #222; border: none; border-radius: 10px; color: white; font-size: 1.8rem; font-weight: bold; padding: 18px 0; }
+    </style>
+</head>
+<body>
+
+    <div id="nav-bar">
+        <button id="tab-finisher" class="nav-btn active" onclick="switchTab('finisher')">THE FINISHER</button>
+        <button id="tab-quick" class="nav-btn" onclick="switchTab('quick')">QUICK ADD</button>
+    </div>
+
+    <div id="display-section">
+        <div id="total-score">0</div>
+        <div id="sub-text">ENTER SCORE</div>
+        <div class="dart-slots">
+            <div id="slot-0" class="dart-box"></div>
+            <div id="slot-1" class="dart-box"></div>
+            <div id="slot-2" class="dart-box"></div>
+        </div>
+    </div>
+
+    <div id="screen-finisher" class="screen active">
+        <div id="fin-entry-ui">
+            <button class="num-btn" onclick="finPress(1)">1</button><button class="num-btn" onclick="finPress(2)">2</button><button class="num-btn" onclick="finPress(3)">3</button>
+            <button class="num-btn" onclick="finPress(4)">4</button><button class="num-btn" onclick="finPress(5)">5</button><button class="num-btn" onclick="finPress(6)">6</button>
+            <button class="num-btn" onclick="finPress(7)">7</button><button class="num-btn" onclick="finPress(8)">8</button><button class="num-btn" onclick="finPress(9)">9</button>
+            <button class="num-btn" style="background:#421010; color:#ff5252;" onclick="finClear()">CLR</button><button class="num-btn" onclick="finPress(0)">0</button><button class="num-btn" style="background:#333;" onclick="finDel()">DEL</button>
+            <button class="num-btn accent-btn" style="grid-column: span 3;" onclick="finLock()">SHOW CHECKOUT</button>
+        </div>
+        <div id="fin-adj-ui" style="display: none; flex-direction: column;">
+            <div class="mod-row">
+                <button class="mod-btn s-mod selected" onclick="setMod('S')">SINGLE</button>
+                <button class="mod-btn d-mod" onclick="setMod('D')">DOUBLE</button>
+                <button class="mod-btn t-mod" onclick="setMod('T')">TREBLE</button>
+            </div>
+            <div class="grid" id="fin-grid"></div>
+            <div class="mod-row" style="margin-top:8px;">
+                <button class="mod-btn" style="background:#222;" onclick="finHit(25, 'S')">25</button>
+                <button class="mod-btn" style="background:#222;" onclick="finHit(50, 'S')">BULL</button>
+            </div>
+            <div class="bottom-actions">
+                <button class="action-btn miss-btn" onclick="finHit(0, 'M')">MISS</button>
+                <button class="action-btn undo-btn" onclick="finUndo()">UNDO</button>
+                <button class="action-btn" onclick="resetFinisher()">NEW VISIT</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-quick" class="screen">
+        <div class="mod-row">
+            <button class="mod-btn s-mod selected" onclick="setMod('S')">SINGLE</button>
+            <button class="mod-btn d-mod" onclick="setMod('D')">DOUBLE</button>
+            <button class="mod-btn t-mod" onclick="setMod('T')">TREBLE</button>
+        </div>
+        <div class="grid" id="quick-grid"></div>
+        <div class="mod-row" style="margin-top:8px;">
+            <button class="mod-btn" style="background:#222;" onclick="quickHit(25, 'S')">25</button>
+            <button class="mod-btn" style="background:#222;" onclick="quickHit(50, 'S')">BULL</button>
+        </div>
+        <div class="bottom-actions">
+            <button class="action-btn miss-btn" onclick="quickHit(0, 'M')">MISS</button>
+            <button class="action-btn undo-btn" onclick="quickUndo()">UNDO</button>
+            <button class="action-btn accent-btn" onclick="resetQuick()">RESET</button>
+        </div>
+    </div>
+
+<script>
+    const checkoutTable = {
+        170:"T20 T20 BULL", 167:"T20 T19 BULL", 164:"T20 T18 BULL", 161:"T20 T17 BULL", 160:"T20 T20 D20",
+        158:"T20 T20 D19", 157:"T20 T19 D20", 156:"T20 T20 D18", 155:"T20 T19 D19", 154:"T20 T18 D20",
+        153:"T20 T19 D18", 152:"T20 T20 D16", 151:"T20 T17 D20", 150:"T20 T18 D18", 149:"T20 T19 D16",
+        148:"T20 T20 D14", 147:"T20 T17 D18", 146:"T20 T18 D16", 145:"T20 T19 D14", 144:"T20 T20 D12",
+        143:"T20 T17 D16", 142:"T20 T14 D20", 141:"T20 T19 D12", 140:"T20 T20 D10", 139:"T20 T13 D20",
+        138:"T20 T18 D12", 137:"T20 T15 D16", 136:"T20 T20 D8", 135:"25 T20 BULL", 134:"T20 T14 D16",
+        133:"T20 T19 D8", 132:"25 T19 BULL", 131:"T20 T13 D16", 130:"T20 T20 D5", 129:"T19 T16 D12",
+        128:"T18 T14 D16", 127:"T20 T17 D8", 126:"T19 T19 D6", 125:"25 T20 D20", 124:"T20 T16 D8",
+        123:"T19 16 BULL", 122:"T18 18 BULL", 121:"T20 T11 D14", 120:"T20 20 D20", 119:"T19 12 BULL",
+        118:"T20 18 D20", 117:"T20 17 D20", 116:"T20 16 D20", 115:"T19 18 D20", 114:"T20 14 D20",
+        113:"T19 16 D20", 112:"T20 20 D16", 111:"T19 14 D20", 110:"T20 10 D20", 109:"T19 12 D20",
+        108:"T20 16 D16", 107:"T19 10 D20", 106:"T20 10 D18", 105:"T19 16 D16", 104:"T18 10 D20",
+        103:"T20 3 D20", 102:"T20 10 D16", 101:"T17 10 D20", 100:"T20 D20", 99:"T19 10 D16",
+        98:"T20 D19", 97:"T19 D20", 96:"T20 D18", 95:"T19 D19", 94:"T18 D20", 93:"T19 D18",
+        92:"T20 D16", 91:"T17 D20", 90:"T18 D18", 89:"T19 D16", 88:"T16 D20", 87:"T17 D18",
+        86:"T18 D16", 85:"T15 D20", 84:"T20 D12", 83:"T17 D16", 82:"T14 D20", 81:"T15 D18",
+        80:"T20 D10", 79:"T13 D20", 78:"T18 D12", 77:"T15 D16", 76:"T20 D8", 75:"T17 D12",
+        74:"T14 D16", 73:"T19 D8", 72:"T16 D12", 71:"T13 D16", 70:"T18 D8", 69:"T15 D12",
+        68:"T16 D10", 67:"T17 D8", 66:"T14 D12", 65:"T15 D10", 64:"T16 D8", 63:"T13 D12",
+        62:"T10 D16", 61:"T15 D8", 60:"20 D20", 50:"BULL"
+    };
+
+    let activeTab='finisher', modifier='S', finInput="", finScore=0, finDartsValues=[], finDartLabels=[];
+    let qTotal=0, qDartsValues=[], qDartLabels=[];
+
+    function switchTab(t){ activeTab=t; document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.id==='tab-'+t)); document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active', s.id==='screen-'+t)); setMod('S'); t === 'finisher' ? updateFinDisplay() : updateQuickDisplay(); }
+    function setMod(m){ modifier=m; document.querySelectorAll('.mod-btn').forEach(b=>b.classList.toggle('selected', b.classList.contains(m.toLowerCase()+'-mod'))); }
+    
+    function getPts(v, f){ 
+        if(f==='M')return 0; 
+        if(v===25 || v===50) return v; 
+        if(f==='D')return v*2; 
+        if(f==='T')return v*3; 
+        return v; 
+    }
+    
+    function getLabel(v, f){ 
+        if(f==='M')return "MISS"; 
+        if(v===25) return "25";
+        if(v===50) return "BULL"; 
+        return (f==='S'?"":f)+v; 
+    }
+
+    function updateSlots(l){ for(let i=0;i<3;i++){ const s=document.getElementById(`slot-${i}`); s.innerText=l[i]||""; s.className=l[i]?'dart-box filled':'dart-box'; } }
+
+    function finPress(n){ if(finInput.length<3){ finInput+=n; updateFinDisplay(); } }
+    function finClear(){ finInput=""; updateFinDisplay(); }
+    function finDel(){ finInput=finInput.slice(0,-1); updateFinDisplay(); }
+    function finLock(){ if(!finInput||finInput=="0")return; finScore=parseInt(finInput); finDartsValues=[]; finDartLabels=[]; document.getElementById('fin-entry-ui').style.display='none'; document.getElementById('fin-adj-ui').style.display='flex'; updateFinDisplay(); }
+    
+    function finHit(v, f){
+        if(finDartLabels.length>=3||finScore===0)return;
+        let p=getPts(v, (v===25||v===50)?'S':f);
+        if(finScore-p<0||(finScore-p===1 && p !== finScore)){ 
+            while(finDartLabels.length<3){ finDartLabels.push("BUST"); finDartsValues.push(0); } 
+        } else { 
+            finScore-=p; 
+            finDartsValues.push(p); 
+            finDartLabels.push(getLabel(v, (v===25||v===50)?'S':f)); 
+        }
+        setMod('S'); updateFinDisplay();
+    }
+
+    function finUndo(){ 
+        if(finDartLabels.length===0)return; 
+        if(finDartLabels[finDartLabels.length-1]==="BUST"){ 
+            while(finDartLabels.length > 0 && finDartLabels[finDartLabels.length-1]==="BUST"){ 
+                finDartLabels.pop(); finDartsValues.pop(); 
+            } 
+        } else { 
+            finScore+=finDartsValues.pop(); 
+            finDartLabels.pop(); 
+        } 
+        updateFinDisplay(); 
+    }
+    
+    function getStrategy(score, dartsHand) {
+        if (score === 0) return "GAME SHOT";
+        if (score === 50) return "BULL";
+        if (score < 2) return "NO FINISH";
+
+        // 1. Check PDC Table for current score and remaining darts
+        if (checkoutTable[score]) {
+            let steps = checkoutTable[score].split(" ");
+            if (steps.length <= dartsHand) return checkoutTable[score];
+        }
+
+        // 2. PDC Logic setups for 2 darts
+        if (dartsHand === 2) {
+            if (score === 61) return "T15 D8";
+            if (score === 65) return "T15 D10";
+            if (score === 67) return "T17 D8";
+            if (score === 70) return "T10 D20";
+        }
+
+        // 3. Recursive Setup Logic
+        let seq = []; let tmp = score; let dLeft = dartsHand;
+        while (dLeft > 0 && tmp > 0) {
+            if (checkoutTable[tmp]) {
+                let steps = checkoutTable[tmp].split(" ");
+                if (steps.length <= dLeft) { seq.push(checkoutTable[tmp]); break; }
+            }
+            if (tmp > 170) { seq.push("T20"); tmp -= 60; }
+            else if (tmp > 130) { seq.push("T20"); tmp -= 60; }
+            else if (tmp > 60) { let target = (tmp % 2 === 0) ? "T20" : "T19"; seq.push(target); tmp -= (target === "T20" ? 60 : 57); }
+            else if (tmp > 40) { let s = tmp - 40; seq.push(s); tmp = 40; }
+            else { if(tmp % 2 === 0 && tmp <= 40) { seq.push("D" + (tmp/2)); } else { seq.push(1); tmp -= 1; } break; }
+            dLeft--;
+        }
+        return seq.join(" ");
+    }
+
+    function updateFinDisplay(){
+        const entryMode=document.getElementById('fin-entry-ui').style.display!=='none';
+        document.getElementById('total-score').innerText=entryMode?(finInput||"0"):finScore;
+        const sub = document.getElementById('sub-text'); updateSlots(finDartLabels);
+        if(entryMode){ sub.innerText="ENTER SCORE"; return; }
+        if(finScore===0){ sub.innerText="GAME SHOT!"; return; }
+        if(finDartLabels.length>=3){ sub.innerText= (finDartLabels.includes("BUST")) ? "BUST" : "VISIT OVER"; return; }
+        sub.innerText = getStrategy(finScore, 3 - finDartLabels.length);
+    }
+
+    function resetFinisher(){ finInput=""; finScore=0; finDartLabels=[]; finDartsValues=[]; document.getElementById('fin-entry-ui').style.display='grid'; document.getElementById('fin-adj-ui').style.display='none'; updateFinDisplay(); }
+    
+    function quickHit(v, f){ 
+        if(qDartLabels.length>=3) return; 
+        let p=getPts(v, (v===25||v===50)?'S':f); 
+        qTotal+=p; qDartsValues.push(p); qDartLabels.push(getLabel(v, (v===25||v===50)?'S':f)); 
+        setMod('S'); updateQuickDisplay(); 
+    }
+    function quickUndo(){ if(qDartLabels.length>0){ qTotal-=qDartsValues.pop(); qDartLabels.pop(); updateQuickDisplay(); } }
+    function updateQuickDisplay(){ document.getElementById('total-score').innerText = qTotal; document.getElementById('sub-text').innerText = "QUICK ADD"; updateSlots(qDartLabels); }
+    function resetQuick(){ qTotal=0; qDartLabels=[]; qDartsValues=[]; updateQuickDisplay(); }
+
+    function makeGrid(id, h){ const g=document.getElementById(id); for(let i=1; i<=20; i++){ let b=document.createElement('button'); b.className='grid-btn'; b.innerText=i; b.onclick=()=>h(i, modifier); g.appendChild(b); } }
+    makeGrid('fin-grid', finHit);
+    makeGrid('quick-grid', quickHit);
+</script>
+</body>
+</html>
